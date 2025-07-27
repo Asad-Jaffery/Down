@@ -9,6 +9,7 @@ import {
 import Navigation from '@/components/Navigation';
 import ProfilePic from '@/components/ProfilePic';
 import EventCard from '@/components/EventCard';
+import { EventContext, useEventContext } from '@/contexts/EventContext';
 
 // Mock data
 const mockUser = {
@@ -18,42 +19,16 @@ const mockUser = {
   avatar: '',
 };
 
-const mockUserEvents = [
-  {
-    id: '1',
-    activity: 'Coffee at Starbucks',
-    location: 'Starbucks Downtown',
-    time: '2024-01-15T10:00',
-    attendees: [
-      { id: '1', name: 'Alice', avatar: '' },
-      { id: '2', name: 'Bob', avatar: '' },
-      { id: '3', name: 'Charlie', avatar: '' },
-    ],
-  },
-  {
-    id: '2',
-    activity: 'Movie Night',
-    location: 'AMC Theater',
-    time: '2024-01-16T19:00',
-    attendees: [
-      { id: '1', name: 'Alice', avatar: '' },
-      { id: '4', name: 'Diana', avatar: '' },
-    ],
-  },
-];
-
-export default function ProfilePage() {
+function ProfilePageContent() {
+  const { events, loading, handleRSVP } = useEventContext();
   const [user] = useState(mockUser);
-  const [userEvents] = useState(mockUserEvents);
+
+  // Filter events to show only user's events (for now, just show all events)
+  const userEvents = events;
 
   const handleEditProfile = () => {
     console.log('Edit profile clicked');
     // In a real app, this would open an edit profile modal
-  };
-
-  const handleRSVP = (eventId: string, response: 'down' | 'not-this-time') => {
-    console.log(`RSVP for event ${eventId}: ${response}`);
-    // In a real app, this would update the backend
   };
 
   return (
@@ -106,7 +81,11 @@ export default function ProfilePage() {
             </h2>
           </div>
 
-          {userEvents.length > 0 ? (
+          {loading ? (
+            <div className='text-center py-8'>
+              <p className='text-[var(--text-secondary)]'>Loading events...</p>
+            </div>
+          ) : userEvents.length > 0 ? (
             <div className='space-y-4'>
               {userEvents.map((event) => (
                 <EventCard key={event.id} event={event} onRSVP={handleRSVP} />
@@ -155,5 +134,15 @@ export default function ProfilePage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function ProfilePage() {
+  const eventContextValue = useEventContext();
+
+  return (
+    <EventContext.Provider value={eventContextValue}>
+      <ProfilePageContent />
+    </EventContext.Provider>
   );
 }

@@ -5,42 +5,7 @@ import Navigation from '@/components/Navigation';
 import EventCard from '@/components/EventCard';
 import EventForm from '@/components/EventForm';
 import AddEventButton from '@/components/AddEventButton';
-
-// Mock data
-const mockEvents = [
-  {
-    id: '1',
-    activity: 'Coffee at Starbucks',
-    location: 'Starbucks Downtown',
-    time: '2024-01-15T10:00',
-    attendees: [
-      { id: '1', name: 'Alice', avatar: '' },
-      { id: '2', name: 'Bob', avatar: '' },
-      { id: '3', name: 'Charlie', avatar: '' },
-    ],
-  },
-  {
-    id: '2',
-    activity: 'Movie Night',
-    location: 'AMC Theater',
-    time: '2024-01-16T19:00',
-    attendees: [
-      { id: '1', name: 'Alice', avatar: '' },
-      { id: '4', name: 'Diana', avatar: '' },
-    ],
-  },
-  {
-    id: '3',
-    activity: 'Hiking Trip',
-    location: 'Mountain Trail Park',
-    time: '2024-01-17T09:00',
-    attendees: [
-      { id: '2', name: 'Bob', avatar: '' },
-      { id: '3', name: 'Charlie', avatar: '' },
-      { id: '5', name: 'Eve', avatar: '' },
-    ],
-  },
-];
+import { EventContext, useEventContext } from '@/contexts/EventContext';
 
 const mockFriends = [
   { id: '1', name: 'Alice Johnson' },
@@ -50,31 +15,22 @@ const mockFriends = [
   { id: '5', name: 'Eve Wilson' },
 ];
 
-export default function HomePage() {
-  const [events, setEvents] = useState(mockEvents);
+function HomePageContent() {
+  const { events, loading, createEvent, handleRSVP } = useEventContext();
   const [showEventForm, setShowEventForm] = useState(false);
 
-  const handleRSVP = (eventId: string, response: 'down' | 'not-this-time') => {
-    console.log(`RSVP for event ${eventId}: ${response}`);
-    // In a real app, this would update the backend
-  };
-
-  const handleCreateEvent = (eventData: {
+  const handleCreateEvent = async (eventData: {
     activity: string;
     location: string;
     time: string;
     selectedFriends: string[];
   }) => {
-    const newEvent = {
-      id: Date.now().toString(),
-      activity: eventData.activity,
-      location: eventData.location,
-      time: eventData.time,
-      attendees: [],
-    };
-
-    setEvents((prev) => [newEvent, ...prev]);
-    setShowEventForm(false);
+    try {
+      await createEvent(eventData);
+      setShowEventForm(false);
+    } catch (error) {
+      console.error('Error creating event:', error);
+    }
   };
 
   return (
@@ -109,11 +65,34 @@ export default function HomePage() {
 
         {/* Event Feed */}
         <div className='space-y-4'>
-          {events.map((event) => (
-            <EventCard key={event.id} event={event} onRSVP={handleRSVP} />
-          ))}
+          {loading ? (
+            <div className='text-center py-8'>
+              <p className='text-[var(--text-secondary)]'>Loading events...</p>
+            </div>
+          ) : events.length > 0 ? (
+            events.map((event) => (
+              <EventCard key={event.id} event={event} onRSVP={handleRSVP} />
+            ))
+          ) : (
+            <div className='text-center py-12 bg-[var(--card-bg)] rounded-xl shadow-sm border border-[var(--border)]'>
+              <p className='text-[var(--text-secondary)] mb-4'>No events yet</p>
+              <p className='text-[var(--text-muted)]'>
+                Looks like no ones down for anything 🙁. Be the first!
+              </p>
+            </div>
+          )}
         </div>
       </div>
     </div>
+  );
+}
+
+export default function HomePage() {
+  const eventContextValue = useEventContext();
+
+  return (
+    <EventContext.Provider value={eventContextValue}>
+      <HomePageContent />
+    </EventContext.Provider>
   );
 }

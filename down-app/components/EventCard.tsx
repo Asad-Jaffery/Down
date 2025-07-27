@@ -6,22 +6,14 @@ import {
   UserGroupIcon,
 } from '@heroicons/react/24/outline';
 import { CheckIcon, XMarkIcon } from '@heroicons/react/24/solid';
-
-interface Event {
-  id: string;
-  activity: string;
-  location: string;
-  time: string;
-  attendees: Array<{
-    id: string;
-    name: string;
-    avatar: string;
-  }>;
-}
+import { Event } from '@/contexts/EventContext';
 
 interface EventCardProps {
   event: Event;
-  onRSVP: (eventId: string, response: 'down' | 'not-this-time') => void; // why does this have to be a prop? 
+  onRSVP: (
+    eventId: string,
+    response: 'down' | 'not-this-time'
+  ) => Promise<void>;
 }
 
 export default function EventCard({ event, onRSVP }: EventCardProps) {

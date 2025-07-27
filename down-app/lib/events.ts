@@ -1,8 +1,15 @@
-import { collection, addDoc, getDocs, updateDoc, doc } from 'firebase/firestore';
+import { collection, addDoc, getDocs, updateDoc, doc, Timestamp } from 'firebase/firestore';
 import { db } from './firebase'; 
 
+interface event {
+    eventName: string;
+    location: string;
+    time: Timestamp;
+    attendees: string[];
+}
+
 // Add an event
-export async function createEvent(eventData: any) {
+export async function createEvent(eventData : event) {
   const docRef = await addDoc(collection(db, 'events'), eventData);
   return docRef.id;
 }
@@ -18,3 +25,9 @@ export async function updateEventRSVP(eventId: string, attendees: any[]) {
   const eventRef = doc(db, 'events', eventId);
   await updateDoc(eventRef, { attendees });
 }
+
+function getMinuteTimestamp(date: Date): Timestamp {
+    date.setSeconds(0, 0); // strip to minute precision
+    return Timestamp.fromDate(date);
+  }
+  

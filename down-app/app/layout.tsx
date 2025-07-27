@@ -26,7 +26,9 @@ export default function RootLayout({
           defer
         ></script>
       </head>
-      <body className={`${inter.variable} antialiased`}>{children}</body>
+      <body className={`${inter.variable} antialiased`}>
+        {children}
+      </body>
     </html>
   );
 }

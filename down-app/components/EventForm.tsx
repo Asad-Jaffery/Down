@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { XMarkIcon } from '@heroicons/react/24/outline';
+import { CreateEventData } from '@/contexts/EventContext';
 
 interface Friend {
   id: string;
@@ -10,12 +11,7 @@ interface Friend {
 
 interface EventFormProps {
   friends: Friend[];
-  onSubmit: (eventData: {
-    activity: string;
-    location: string;
-    time: string;
-    selectedFriends: string[];
-  }) => void;
+  onSubmit: (eventData: CreateEventData) => Promise<void>;
   onCancel: () => void;
 }
 
