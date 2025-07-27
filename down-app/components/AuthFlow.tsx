@@ -16,13 +16,12 @@ export default function AuthFlow({
   onAuthError,
 }: AuthFlowProps) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [currentUser, setCurrentUser] = useState<User | null>(null);
+
   const [currentMetadata, setCurrentMetadata] = useState<UserMetadata | null>(
     null
   );
 
   const handleAuthSuccess = (user: User, metadata: UserMetadata) => {
-    setCurrentUser(user);
     setCurrentMetadata(metadata);
     setIsAuthenticated(true);
     onAuthSuccess(user, metadata);
@@ -36,7 +35,6 @@ export default function AuthFlow({
     try {
       await logout();
       setIsAuthenticated(false);
-      setCurrentUser(null);
       setCurrentMetadata(null);
     } catch (error) {
       console.error('Logout error:', error);

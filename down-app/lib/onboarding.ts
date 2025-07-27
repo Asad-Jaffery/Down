@@ -1,4 +1,12 @@
-import { doc, setDoc, getDoc } from 'firebase/firestore';
+import {
+  doc,
+  setDoc,
+  getDoc,
+  collection,
+  query,
+  where,
+  getDocs,
+} from 'firebase/firestore';
 import { db } from './firebase';
 import { UserMetadata } from './user-utils';
 
@@ -18,8 +26,13 @@ export const createUserProfile = async (
 ): Promise<OnboardingResult> => {
   try {
     // Check if username is unique
-    const usernameQuery = await getDoc(doc(db, 'usernames', username));
-    if (usernameQuery.exists()) {
+    const usernameQuery = query(
+      collection(db, 'users'),
+      where('username', '==', username)
+    );
+    const usernameSnapshot = await getDocs(usernameQuery);
+
+    if (!usernameSnapshot.empty) {
       return { success: false, error: 'Username already exists' };
     }
 
@@ -37,12 +50,6 @@ export const createUserProfile = async (
 
     // Save user to Firestore
     await setDoc(doc(db, 'users', uid), userMetadata);
-
-    // Save username mapping for uniqueness check
-    await setDoc(doc(db, 'usernames', username), {
-      uid,
-      createdAt: new Date(),
-    });
 
     return {
       success: true,
