@@ -5,7 +5,7 @@ import Navigation from '@/components/Navigation';
 import EventCard from '@/components/EventCard';
 import EventForm from '@/components/EventForm';
 import AddEventButton from '@/components/AddEventButton';
-import { useEventContext } from '@/contexts/EventContext';
+import { useEventContext, CreateEventData } from '@/contexts/EventContext';
 
 const mockFriends = [
   { id: '1', name: 'Alice Johnson' },
@@ -19,12 +19,7 @@ export default function HomePageContent() {
   const { events, loading, createEvent, handleRSVP } = useEventContext();
   const [showEventForm, setShowEventForm] = useState(false);
 
-  const handleCreateEvent = async (eventData: {
-    activity: string;
-    location: string;
-    time: string;
-    selectedFriends: string[];
-  }) => {
+  const handleCreateEvent = async (eventData: CreateEventData) => {
     try {
       await createEvent(eventData);
       setShowEventForm(false);

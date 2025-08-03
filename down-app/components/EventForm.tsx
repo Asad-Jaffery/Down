@@ -20,19 +20,19 @@ export default function EventForm({
   onSubmit,
   onCancel,
 }: EventFormProps) {
-  const [activity, setActivity] = useState('');
-  const [location, setLocation] = useState('');
+  const [name, setName] = useState('');
+  const [place, setPlace] = useState('');
   const [time, setTime] = useState('');
   const [selectedFriends, setSelectedFriends] = useState<string[]>([]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!activity || !location || !time) return;
+    if (!name || !place || !time) return;
 
     onSubmit({
-      activity,
-      location,
-      time,
+      name,
+      place,
+      'event-time': time,
       selectedFriends,
     });
   };
@@ -62,12 +62,12 @@ export default function EventForm({
       <form onSubmit={handleSubmit} className='space-y-4'>
         <div>
           <label className='block text-sm font-medium text-[var(--text-primary)] mb-2'>
-            Activity
+            Event Name
           </label>
           <input
             type='text'
-            value={activity}
-            onChange={(e) => setActivity(e.target.value)}
+            value={name}
+            onChange={(e) => setName(e.target.value)}
             placeholder='What are you doing?'
             className='w-full px-4 py-3 bg-[var(--card-bg-dark)] border border-[var(--border)] rounded-lg text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent'
             required
@@ -76,12 +76,12 @@ export default function EventForm({
 
         <div>
           <label className='block text-sm font-medium text-[var(--text-primary)] mb-2'>
-            Location
+            Place
           </label>
           <input
             type='text'
-            value={location}
-            onChange={(e) => setLocation(e.target.value)}
+            value={place}
+            onChange={(e) => setPlace(e.target.value)}
             placeholder='Where are you meeting?'
             className='w-full px-4 py-3 bg-[var(--card-bg-dark)] border border-[var(--border)] rounded-lg text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent'
             required

@@ -17,25 +17,28 @@ interface EventCardProps {
 }
 
 export default function EventCard({ event, onRSVP }: EventCardProps) {
+  const attendeeCount = Object.keys(event.attendees).length;
+  const attendeeList = Object.entries(event.attendees).slice(0, 5);
+
   return (
     <div className='bg-[var(--card-bg)] rounded-xl shadow-sm border border-[var(--border)] p-4 mb-4 hover:shadow-md transition-shadow'>
       <div className='flex items-start justify-between mb-3'>
         <h3 className='text-lg font-semibold text-[var(--text-primary)]'>
-          {event.activity}
+          {event.name}
         </h3>
         <span className='text-xs text-[var(--text-secondary)] bg-[var(--border)] px-2 py-1 rounded-full'>
-          {event.attendees.length} people are down
+          {attendeeCount} people are down
         </span>
       </div>
 
       <div className='space-y-2 mb-4'>
         <div className='flex items-center text-sm text-[var(--text-secondary)]'>
           <MapPinIcon className='w-4 h-4 mr-2 text-[var(--text-muted)]' />
-          {event.location}
+          {event.place}
         </div>
         <div className='flex items-center text-sm text-[var(--text-secondary)]'>
           <ClockIcon className='w-4 h-4 mr-2 text-[var(--text-muted)]' />
-          {event.time}
+          {event['event-time']}
         </div>
       </div>
 
@@ -48,25 +51,18 @@ export default function EventCard({ event, onRSVP }: EventCardProps) {
           </span>
         </div>
         <div className='flex -space-x-2'>
-          {event.attendees.slice(0, 5).map((attendee) => (
+          {attendeeList.map(([username, displayName]) => (
             <div
-              key={attendee.id}
+              key={username}
               className='w-8 h-8 rounded-full bg-gradient-to-br from-[var(--primary)] to-[var(--primary-dark)] flex items-center justify-center text-[var(--background)] text-xs font-medium border-2 border-[var(--card-bg)]'
+              title={displayName}
             >
-              {attendee.avatar ? (
-                <img
-                  src={attendee.avatar}
-                  alt={attendee.name}
-                  className='w-full h-full rounded-full object-cover'
-                />
-              ) : (
-                attendee.name.charAt(0).toUpperCase()
-              )}
+              {displayName.charAt(0).toUpperCase()}
             </div>
           ))}
-          {event.attendees.length > 5 && (
+          {attendeeCount > 5 && (
             <div className='w-8 h-8 rounded-full bg-[var(--border)] flex items-center justify-center text-[var(--text-secondary)] text-xs font-medium border-2 border-[var(--card-bg)]'>
-              +{event.attendees.length - 5}
+              +{attendeeCount - 5}
             </div>
           )}
         </div>
