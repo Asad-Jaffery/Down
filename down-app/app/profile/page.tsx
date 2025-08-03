@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useMemo } from 'react';
 import {
   PencilIcon,
   PhoneIcon,
@@ -10,26 +10,33 @@ import Navigation from '@/components/Navigation';
 import ProfilePic from '@/components/ProfilePic';
 import EventCard from '@/components/EventCard';
 import { EventContext, useEventContext } from '@/contexts/EventContext';
-
-// Mock data
-const mockUser = {
-  id: '1',
-  name: 'John Doe',
-  phone: '+1 (555) 123-4567',
-  avatar: '',
-};
+import { useUser } from '@/contexts/UserContext';
 
 function ProfilePageContent() {
   const { events, loading, handleRSVP } = useEventContext();
-  const [user] = useState(mockUser);
+  const { user } = useUser();
 
-  // Filter events to show only user's events (for now, just show all events)
-  const userEvents = events;
+  // Filter events to show only current user's events
+  const userEvents = useMemo(() => {
+    if (!user) return [];
+    return events.filter((event) => event.creator === user.username);
+  }, [events, user]);
 
   const handleEditProfile = () => {
     console.log('Edit profile clicked');
     // In a real app, this would open an edit profile modal
   };
+
+  // Show loading if user context is still loading
+  if (!user) {
+    return (
+      <div className='min-h-screen bg-[var(--background)] flex items-center justify-center'>
+        <div className='text-center'>
+          <p className='text-[var(--text-secondary)]'>Loading profile...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className='min-h-screen bg-[var(--background)]'>
@@ -41,18 +48,23 @@ function ProfilePageContent() {
         <div className='bg-[var(--card-bg)] rounded-xl shadow-sm border border-[var(--border)] p-6 mb-6'>
           <div className='flex items-center space-x-4 mb-4'>
             <ProfilePic
-              src={user.avatar}
-              alt={user.name}
+              src={''} // TODO: Add avatar support to user context
+              alt={user.displayName}
               size='xl'
-              name={user.name}
+              name={user.displayName}
             />
             <div className='flex-1'>
               <h1 className='text-2xl font-bold text-[var(--text-primary)]'>
-                {user.name}
+                {user.displayName}
               </h1>
               <div className='flex items-center text-[var(--text-secondary)] mt-1'>
+                <span className='text-sm'>@{user.username}</span>
+              </div>
+              <div className='flex items-center text-[var(--text-secondary)] mt-1'>
                 <PhoneIcon className='w-4 h-4 mr-2' />
-                <span className='text-sm'>{user.phone}</span>
+                <span className='text-sm'>
+                  {user.authMethod} authentication
+                </span>
               </div>
             </div>
             <button
@@ -119,7 +131,13 @@ function ProfilePageContent() {
               </div>
             </div>
             <div className='text-center'>
-              <div className='text-2xl font-bold text-[var(--success)]'>12</div>
+              <div className='text-2xl font-bold text-[var(--success)]'>
+                {
+                  events.filter(
+                    (event) => event.attendees[user.username] // Count events where user is attending
+                  ).length
+                }
+              </div>
               <div className='text-sm text-[var(--text-secondary)]'>
                 Events Joined
               </div>

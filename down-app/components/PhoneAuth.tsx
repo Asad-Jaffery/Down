@@ -5,10 +5,9 @@ import { sendOTP, verifyOTP } from '@/lib/otp-verification';
 import { checkUserExists } from '@/lib/new-user-check';
 import { createUserProfile } from '@/lib/onboarding';
 import { User, ConfirmationResult } from 'firebase/auth';
-import { UserMetadata } from '@/lib/user-utils';
 
 interface PhoneAuthProps {
-  onSuccess: (user: User, metadata: UserMetadata) => void;
+  onSuccess: () => void;
   onError: (error: string) => void;
 }
 
@@ -90,9 +89,9 @@ export default function PhoneAuth({ onSuccess, onError }: PhoneAuthProps) {
       }
 
       if (userCheckResult.isExistingUser && userCheckResult.metadata) {
-        // Existing user - log them in
-        onSuccess(otpResult.user, userCheckResult.metadata);
+        // Existing user - UserContext will automatically pick up the auth state change
         setMessage('Welcome back!');
+        onSuccess(); // Just notify that auth succeeded - UserContext handles the rest
       } else {
         // New user - show profile creation
         setCurrentUser(otpResult.user);
@@ -101,6 +100,7 @@ export default function PhoneAuth({ onSuccess, onError }: PhoneAuthProps) {
       }
     } catch (error) {
       setMessage('Error during authentication');
+      onError('Authentication failed');
     } finally {
       setLoading(false);
     }
@@ -128,26 +128,29 @@ export default function PhoneAuth({ onSuccess, onError }: PhoneAuthProps) {
       );
 
       if (result.success && result.metadata) {
-        onSuccess(currentUser, result.metadata);
         setMessage('Profile created successfully!');
+        // UserContext will automatically pick up the new user data
+        onSuccess(); // Just notify that auth succeeded - UserContext handles the rest
       } else {
         setMessage(result.error || 'Failed to create profile');
+        onError(result.error || 'Failed to create profile');
       }
     } catch (error) {
       setMessage('Error creating profile');
+      onError('Profile creation failed');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className='max-w-sm mx-auto p-6 bg-white rounded-lg shadow-lg'>
+    <div className='max-w-sm mx-auto p-6 rounded-lg shadow-lg'>
       {/* reCAPTCHA container */}
       <div ref={recaptchaRef} id='recaptcha-container' className='mb-4'></div>
 
       {step === 'phone' && (
         <div className='space-y-4'>
-          <h2 className='text-2xl font-bold text-center text-gray-800'>
+          <h2 className='text-2xl font-bold text-center text-gray-400'>
             Sign In with Phone
           </h2>
           <p className='text-center text-gray-600'>

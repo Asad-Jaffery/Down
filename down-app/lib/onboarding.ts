@@ -1,7 +1,6 @@
 import {
   doc,
   setDoc,
-  getDoc,
   collection,
   query,
   where,
